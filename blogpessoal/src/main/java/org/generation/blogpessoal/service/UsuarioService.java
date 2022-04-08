@@ -32,10 +32,14 @@ public class UsuarioService {
 	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin){
 		
 		//Verifica se todas as informacoes do usuario sao do usuario
+		
+		//Considerando que usuario não tenha dois iguais, puxa todas as informações só pelo usuario que mandei
 		Optional<Usuario> usuario = usuarioRepository.findByUsuario(usuarioLogin.get().getUsuario());
 		
 		if(usuario.isPresent()) {
+			// Compara a senha do usuario que eu mandei com o usuario objeto.
 			if(compararSenhas(usuarioLogin.get().getSenha(), usuario.get().getSenha())) {
+
 				usuarioLogin.get().setId(usuario.get().getId());
 				usuarioLogin.get().setNome(usuario.get().getNome());
 				usuarioLogin.get().setFoto(usuario.get().getFoto());
@@ -49,12 +53,19 @@ public class UsuarioService {
 	
 	public Optional<Usuario> atualizarUsuario(Usuario usuario){
 		if(usuarioRepository.findById(usuario.getId()).isPresent()) {
+			
+			//Pelo repositório eu vou buscar todas as informações da pessoa que tiver este usuario.
 			Optional<Usuario> buscarUsuario = usuarioRepository.findByUsuario(usuario.getUsuario());
 			
+			//Vê se existe o alguém com o usuario que a pessoa apertou pra atualizar
 			if(buscarUsuario.isPresent()) {
+			/*Se entrar aqui significa que a pessoa atualizou o nome do 
+				usuário para alguém que já existe, ou não mudou seu usuário, 
+				por isso que já existe, ai nesse caso o Id vai ser igual e 
+				não entra nesse próximo if*/
 				if(buscarUsuario.get().getId() != usuario.getId()) {
 					
-					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "este usuário já existe!");
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "este usuário já existe!",null);
 				}
 			}
 			
@@ -67,6 +78,7 @@ public class UsuarioService {
 	}
 	
 	private boolean compararSenhas(String senhaDigitada,String senhaDoBanco) {
+		
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		
 		return encoder.matches(senhaDigitada, senhaDoBanco);

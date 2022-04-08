@@ -20,13 +20,13 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	//faz um usuario na memoria padrão para facilitar o teste
 	@Override
-	//alias
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	// auth é alias apelido para a clase AuthenticationManagerBuilder
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception { // protected a função está acessivel a todos os níveis de segurança, todos os pacotes de segurança tem acesso ao usuario em memoria
 		auth.userDetailsService(userDetailsService);
 		
-		auth.inMemoryAuthentication()
-		.withUser("root")
-		.password(passwordEncoder().encode("root"))
+		auth.inMemoryAuthentication()//caso queira logar com usuario in Memory também consegue
+		.withUser("root")//identificando usuario
+		.password(passwordEncoder().encode("root"))//identificando senha
 		.authorities("ROLE_USER");//indica o que o root root significa na aplicação
 		
 	}
@@ -42,8 +42,8 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter{
 		//Auroriza as requisições da aplicação
 		http.authorizeHttpRequests()
 		//idependente de estar logado ou não, permite cadastrar/logar
-		.antMatchers("usuario/logar").permitAll()
-		.antMatchers("cadastrar/cadastrar").permitAll()
+		.antMatchers("/usuarios/logar").permitAll()
+		.antMatchers("/usuarios/cadastrar").permitAll()
 		//o que estiver autorizado vai entrar
 		.antMatchers(HttpMethod.OPTIONS).permitAll()	
 		//qualquer requisição, tirando cadastrar e logar, vai precisar de autorização
@@ -52,7 +52,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter{
 		.and().httpBasic()
 		//o token não dura pra sempre.
 		.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-		.and().cors()
+		.and().cors() // auxiliar do cross origin. permitindo de qq rota
 		//não deixa atualizar ou deletar a aplicação
 		.and().csrf().disable();
 

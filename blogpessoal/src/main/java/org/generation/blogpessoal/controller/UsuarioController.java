@@ -37,8 +37,6 @@ public class UsuarioController {
 	}
 	
 	@PostMapping("/cadastrar")
-	
-	
 	public ResponseEntity<Usuario> cadastraUsuario(@Valid @RequestBody Usuario usu){
 		
 		//nome cadastrarUsuario esta em usuario service, puxa de la.
@@ -48,7 +46,7 @@ public class UsuarioController {
 	}
 	
 	@PostMapping("/logar")
-	// nome da funcao e o que eu crio aqui mesmo
+	// nome da funcao eu crio aqui mesmo
 	public ResponseEntity<UsuarioLogin> logarUsuario(@RequestBody Optional<UsuarioLogin> user){
 		return service.autenticarUsuario(user)
 				.map(resp -> ResponseEntity.ok(resp))
