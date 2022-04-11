@@ -2,7 +2,6 @@ package org.generation.blogpessoal.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.generation.blogpessoal.model.Usuario;
@@ -21,7 +20,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)//Teste que se inicia em uma porta aleatória
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)//Teste unitário, tem começo meio e fim

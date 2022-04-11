@@ -18,6 +18,13 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
+	private String criptografarSenha(String senha) {
+		//recebe a senha e cryptografa ela
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		return encoder.encode(senha);
+	}
+	
 	public Optional<Usuario>cadastrarUsuario(Usuario usuario){
 		//verifica se existe esse usuario.
 		if(usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent()) {
@@ -27,6 +34,22 @@ public class UsuarioService {
 		usuario.setSenha(criptografarSenha(usuario.getSenha()));
 		
 		return Optional.of(usuarioRepository.save(usuario));
+	}
+	
+	private boolean compararSenhas(String senhaDigitada,String senhaDoBanco) {
+		
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		return encoder.matches(senhaDigitada, senhaDoBanco);
+	} 
+	
+	
+	private String geradorBasicToken(String usuario, String senha) {
+
+		String token = usuario + ":" + senha;
+		byte[] tokenBase64 = Base64.encodeBase64(token.getBytes(Charset.forName("US-ASCII")));
+		
+		return "Basic " + new String(tokenBase64);
 	}
 	
 	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin){
@@ -42,9 +65,12 @@ public class UsuarioService {
 
 				usuarioLogin.get().setId(usuario.get().getId());
 				usuarioLogin.get().setNome(usuario.get().getNome());
+				usuarioLogin.get().setUsuario(usuario.get().getUsuario());
 				usuarioLogin.get().setFoto(usuario.get().getFoto());
 				usuarioLogin.get().setToken(geradorBasicToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha()));
-				usuarioLogin.get().setSenha(usuario.get().getSenha());			
+				usuarioLogin.get().setSenha(usuario.get().getSenha());	
+				
+				return usuarioLogin;
 			}
 		}
 		
@@ -61,7 +87,7 @@ public class UsuarioService {
 			if(buscarUsuario.isPresent()) {
 			/*Se entrar aqui significa que a pessoa atualizou o nome do 
 				usuário para alguém que já existe, ou não mudou seu usuário, 
-				por isso que já existe, ai nesse caso o Id vai ser igual e 
+				por isso que já existe, nesse último caso o Id vai ser igual e 
 				não entra nesse próximo if*/
 				if(buscarUsuario.get().getId() != usuario.getId()) {
 					
@@ -74,28 +100,6 @@ public class UsuarioService {
 			return Optional.of(usuarioRepository.save(usuario));
 		}
 		
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário não encontrado!");
-	}
-	
-	private boolean compararSenhas(String senhaDigitada,String senhaDoBanco) {
-		
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		
-		return encoder.matches(senhaDigitada, senhaDoBanco);
-	}
-	
-	private String criptografarSenha(String senha) {
-		//recebe a senha e cryptografa ela
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		
-		return encoder.encode(senha);
-	}
-	
-	private String geradorBasicToken(String usuario, String senha) {
-
-		String token = usuario + ":" + senha;
-		byte[] tokenBase64 = Base64.encodeBase64(token.getBytes(Charset.forName("US-ASCII")));
-		
-		return "Basic " + new String(tokenBase64);
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário não encontrado!",null);
 	}
 }
